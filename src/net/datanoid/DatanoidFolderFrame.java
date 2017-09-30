@@ -5,6 +5,8 @@
  */
 package net.datanoid;
 
+import java.awt.Color;
+
 /**
  *
  * @author lylejw
