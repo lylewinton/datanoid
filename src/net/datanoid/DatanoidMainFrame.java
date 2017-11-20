@@ -24,6 +24,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.font.TextAttribute;
+import java.io.File;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -31,14 +33,22 @@ import java.awt.font.TextAttribute;
  */
 public class DatanoidMainFrame extends javax.swing.JFrame {
 
+    private final DatanoidFoldersComboBoxModel currentFolderModel;
+
     /**
      * Creates new form DatanoidMainFrame
      */
     public DatanoidMainFrame() {
         initComponents();
         
-        folderFrame = new DatanoidFolderFrame();
-        tabbedPane.addTab("Select Folder", null, folderFrame, "Select a folder to configure");
+        // Attach the currentFolder ComboBox to a DatanoidFolders custom model
+        currentFolderModel = new DatanoidFoldersComboBoxModel();
+        currentFolder.setModel(currentFolderModel);
+        
+        javax.swing.JPanel testPanel = new javax.swing.JPanel();
+        tabbedPane.addTab("Backup", null, testPanel, "Choose backup locations");
+        //folderTabs.add( testPanel );
+        // TODO Plan to auto construct tabs from plugins
         
         // Set the icons
         Image icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("resource/disk-16.png"));
@@ -148,22 +158,110 @@ public class DatanoidMainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         tabbedPane = new javax.swing.JTabbedPane();
+        folderPanel = new javax.swing.JPanel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        currentFolder = new javax.swing.JComboBox<>();
+        nonLocalFolder = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/datanoid/resource/disk-64.png"))); // NOI18N
+        jLabel11.setToolTipText("");
+        jLabel11.setAlignmentX(0.5F);
+        jLabel11.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 10, 20));
+
+        jLabel12.setText("Select a watched folder to set up: ");
+
+        currentFolder.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Add a new folder..." }));
+        currentFolder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                currentFolderActionPerformed(evt);
+            }
+        });
+
+        nonLocalFolder.setText("<html>Tick if the folder is a removable disk or network drive<br/>&nbsp;and can be disconnected from time to time.</html>");
+        nonLocalFolder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nonLocalFolderActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout folderPanelLayout = new javax.swing.GroupLayout(folderPanel);
+        folderPanel.setLayout(folderPanelLayout);
+        folderPanelLayout.setHorizontalGroup(
+            folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, folderPanelLayout.createSequentialGroup()
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(folderPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, folderPanelLayout.createSequentialGroup()
+                        .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(nonLocalFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 677, Short.MAX_VALUE)
+                            .addComponent(currentFolder, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
+        );
+        folderPanelLayout.setVerticalGroup(
+            folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(folderPanelLayout.createSequentialGroup()
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(folderPanelLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(currentFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(nonLocalFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+            .addComponent(folderPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(tabbedPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 548, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void currentFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_currentFolderActionPerformed
+        System.out.println(evt.toString());
+        if ("comboBoxChanged".equals(evt.getActionCommand())) {
+            if (currentFolder.getSelectedIndex() == (currentFolder.getItemCount()-1)) {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
+                int returnVal = fc.showDialog(this,"Select");
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    //This is where a real application would deal with the file.
+                    //currentFolder.insertItemAt(file.getAbsolutePath(), currentFolder.getItemCount()-1);
+                    DatanoidFolders df = DatanoidFolders.getInstance();
+                    df.add(file.getAbsolutePath());
+                } else {
+                    System.out.println("Open command cancelled by user.");
+                }
+            } else {
+                System.out.println("selected "+currentFolder.getSelectedItem().toString());
+            }
+        }
+    }//GEN-LAST:event_currentFolderActionPerformed
+
+    private void nonLocalFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nonLocalFolderActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nonLocalFolderActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,10 +299,14 @@ public class DatanoidMainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> currentFolder;
+    private javax.swing.JPanel folderPanel;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JCheckBox nonLocalFolder;
     private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
 
     private TrayIcon trayIcon;
     private SystemTray tray;
-    private DatanoidFolderFrame folderFrame;
 }
